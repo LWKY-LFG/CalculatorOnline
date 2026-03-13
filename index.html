@@ -1,406 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LWKY LFG</title>
+    <style>
+        /* Le boîtier de la calculatrice */
+        .calculator {
+            width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 15px;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.3);
+        }
 
-  <!-- Embedded CSS to avoid linking issues -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
+        /* L'écran d'affichage */
+        #display {
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+            background: #eee;
+        }
 
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:'Orbitron',sans-serif;background:radial-gradient(circle at 30% 30%, #001018,#000);color:#eaffff;overflow-x:hidden}
-    a{color:inherit}
+        /* Grille pour les boutons (4 colonnes) */
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
 
-    /* Topbar */
-    header{
-      position:fixed;top:0;left:0;right:0;height:78px;display:flex;align-items:center;
-      justify-content:space-between;padding:10px 26px;gap:12px;z-index:1000;
-      background:rgba(3,8,14,0.55);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,200,255,0.06);
-      box-shadow:0 8px 30px rgba(0,10,20,0.6)
-    }
-    .brand{display:flex;align-items:center;gap:12px}
-    .brand img{height:56px;border-radius:8px;filter:drop-shadow(0 0 18px rgba(0,230,255,0.32))}
-    .brand .txt{display:flex;flex-direction:column;line-height:1}
-    .brand .name{color:#00eaff;font-weight:800;letter-spacing:1px}
-    .brand .tag{color:#9fe8f8;font-size:.82rem;opacity:.9}
+        /* Style de vos boutons */
+        button {
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #555;
+            color: white;
+            transition: background 0.2s;
+        }
 
-    nav ul{display:flex;gap:20px;list-style:none}
-    .nav-link{position:relative;font-weight:700;color:#9fe8f8;text-decoration:none;padding:6px 4px;transition:all .22s}
-    .nav-link::after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:0;background:linear-gradient(90deg,#00eaff,#0078ff);box-shadow:0 0 12px rgba(0,200,255,0.12);transition:width .22s}
-    .nav-link:hover{color:#00eaff;transform:translateY(-2px)}
-    .nav-link:hover::after,.nav-link.active::after{width:100%}
-    .nav-link.active{color:#00eaff;text-shadow:0 0 8px rgba(0,200,255,0.12)}
+        button:hover { background-color: #777; }
+        button:active { transform: scale(0.95); }
 
-    /* Hero / main layout */
-    main{padding-top:96px;min-height:100vh;z-index:20;position:relative}
-    section{max-width:1100px;margin:18px auto;padding:34px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;border:1px solid rgba(0,255,255,0.03);box-shadow:0 12px 40px rgba(0,10,20,0.6);opacity:0;transform:translateY(18px);transition:all .6s;display:none}
-    section.active{display:block;opacity:1;transform:translateY(0)}
-
-    h2{font-size:2.2rem;color:#00eaff;text-shadow:0 0 18px rgba(0,200,255,0.14);margin-bottom:12px}
-    p.lead{color:#bfeeff;font-size:1.02rem;line-height:1.6;margin-bottom:12px}
-
-    /* Staff */
-    .staff-category{margin:28px 0}
-    .staff-category h3{color:#00eaff;font-size:1.6rem;margin-bottom:14px;text-shadow:0 0 10px rgba(0,200,255,0.12)}
-    .staff-grid{display:flex;flex-wrap:wrap;gap:18px;justify-content:center}
-    .staff-card{
-      width:200px;background:rgba(0,20,40,0.7);border-radius:14px;padding:16px;text-align:center;border:1px solid rgba(0,255,255,0.08);
-      transition:transform .28s,box-shadow .28s;box-shadow:0 8px 30px rgba(0,10,20,0.5);overflow:hidden
-    }
-    .staff-card:hover{transform:translateY(-8px);box-shadow:0 16px 40px rgba(0,200,255,0.12)}
-    .staff-card img{width:94px;height:94px;border-radius:50%;object-fit:cover;margin:6px auto;border:2px solid #00eaff;box-shadow:0 0 18px rgba(0,200,255,0.18);transition:transform .28s}
-    .staff-card:hover img{transform:scale(1.06)}
-    .staff-card h4{color:#00eaff;margin:10px 0 6px;font-size:1.05rem}
-    .staff-card p.role{color:#bfeeff;font-size:.95rem;margin-bottom:0.2rem;opacity:.95}
-
-    /* Buttons */
-    .cta-row{display:flex;gap:12px;justify-content:center;margin-top:12px}
-    .btn-neon{background:linear-gradient(90deg,#00c6ff,#0072ff);border:none;color:#02111a;padding:10px 16px;border-radius:10px;font-weight:800;cursor:pointer;box-shadow:0 12px 40px rgba(0,150,220,0.12)}
-    .btn-outline{padding:10px 14px;border-radius:10px;border:1px solid rgba(0,200,255,0.12);color:#bfefff;text-decoration:none;font-weight:700}
-
-    /* Footer */
-    footer{padding:24px;text-align:center;color:#9fe8f8;margin-top:20px}
-
-    /* Background image & subtle overlay - ensure files exist */
-    body::before{
-      content:"";position:fixed;inset:0;z-index:0;
-      background-image:linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.7)),url('background.png');
-      background-size:cover;background-position:center center;opacity:.36;filter:saturate(1.02)contrast(1.02)blur(.6px);pointer-events:none
-    }
-
-    /* Toast */
-    .toast{position:fixed;left:50%;transform:translateX(-50%) translateY(8px);bottom:28px;background:linear-gradient(90deg,#00eaff,#0078ff);color:#02111a;padding:10px 14px;border-radius:10px;font-weight:800;opacity:0;pointer-events:none;transition:all .28s;z-index:1500}
-    .toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
-
-    /* Responsive */
-    @media(max-width:900px){
-      header{padding:12px 14px}
-      .brand img{height:48px}
-      main{padding-top:88px}
-      .staff-card{width:46%}
-    }
-    @media(max-width:560px){
-      nav ul{display:none}
-      .staff-card{width:100%}
-      main{padding-top:90px}
-    }
-  </style>
+        /* Couleurs spéciales pour les opérateurs */
+        .operator { background-color: #f39c12; }
+        .operator:hover { background-color: #e67e22; }
+        .equal { background-color: #27ae60; grid-column: span 2; }
+        .clear { background-color: #c0392b; grid-column: span 2; }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <img src="wO4.jpg" alt="LWKY LFG logo">
-      <div class="txt">
-        <div class="name">LWKY LFG</div>
-        <div class="tag">Gaming • Teams • Community</div>
-      </div>
+
+<div class="calculator">
+    <!-- Écran -->
+    <input type="text" id="display" disabled>
+
+    <!-- Touches -->
+    <div class="buttons-grid">
+        <button class="clear" onclick="clearDisplay()">C</button>
+        <button class="operator" onclick="addToDisplay('/')">/</button>
+        <button class="operator" onclick="addToDisplay('*')">×</button>
+        
+        <button onclick="addToDisplay('7')">7</button>
+        <button onclick="addToDisplay('8')">8</button>
+        <button onclick="addToDisplay('9')">9</button>
+        <button class="operator" onclick="addToDisplay('-')">-</button>
+        
+        <button onclick="addToDisplay('4')">4</button>
+        <button onclick="addToDisplay('5')">5</button>
+        <button onclick="addToDisplay('6')">6</button>
+        <button class="operator" onclick="addToDisplay('+')">+</button>
+        
+        <button onclick="addToDisplay('1')">1</button>
+        <button onclick="addToDisplay('2')">2</button>
+        <button onclick="addToDisplay('3')">3</button>
+        <button onclick="addToDisplay('.')">.</button>
+        <button class="equal" onclick="calculate()">=</button>
+        
+        <button onclick="addToDisplay('0')" style="grid-column: span 2;">0</button>
     </div>
-
-    <nav>
-      <ul>
-        <li><a class="nav-link active" href="#" data-target="home">Home</a></li>
-        <li><a class="nav-link" href="#" data-target="about">About</a></li>
-        <li><a class="nav-link" href="#" data-target="rules">Rules</a></li>
-        <li><a class="nav-link" href="#" data-target="staff">Staff</a></li>
-        <li><a class="nav-link" href="#" data-target="join">Join</a></li>
-      </ul>
-    </nav>
-  </header>
-  <canvas id="bgCanvas"></canvas>
-  <main>
-    <section id="home" class="active">
-      <h2>Welcome to <span style="color:#00eaff">LWKY LFG</span></h2>
-      <p class="lead">The ultimate Discord community for gamers — find teammates, join events, and level up together.</p>
-      <div class="cta-row">
-        <button id="copyInvite" class="btn-neon">Copy Discord Invite</button>
-        <a class="btn-outline" href="https://discord.gg/9ggDzhz5XU" target="_blank" rel="noopener">Open Discord</a>
-      </div>
-    </section>
-
-    <section id="about">
-      <h2>About</h2>
-      <p class="lead">LWKY LFG is a friendly gaming hub for players who want to squad up, compete, stream, and share. Events, tournaments, voice chats and more.</p>
-    </section>
-
-    <section id="rules">
-      <h2>Rules</h2>
-      <p class="lead">
-<div class="rules-box">
-  <p class="divider">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</p>
-
-  <h2>⭐ Chatting:</h2>
-  <ul>
-    <li>Do not send any swear words or expressions explicitly.</li>
-    <li>Do not spam, flood, troll or do anything that disturbs the operation of the server.</li>
-    <li>Do not send any malicious files.</li>
-    <li>Do not send any type of links in text channels except inside tickets, forums and 
-      <a href="https://discord.com/channels/1405507465898102804/1405536805599711283" target="_blank">this channel</a>.
-    </li>
-    <li>Do not talk about NSFW, drugs, politics, or very sensitive topics.</li>
-    <li>We like quality chatting, do not just send one word/emoji.</li>
-  </ul>
-
-  <h2>🔧 Other:</h2>
-  <ul>
-    <li>Follow Discord's <a href="https://discord.com/terms" target="_blank">Terms Of Service</a>.</li>
-    <li>Do not DM Staff for any questions or remarks, make a ticket instead.</li>
-    <li>Use channels for their intended purposes, do not advertise in the LFG category or chat.</li>
-    <li>Servers with NSFW, scams, or illegal content cannot be promoted.</li>
-    <li>DM advertising is strictly forbidden.</li>
-    <li>Bypassing sanctions is strictly forbidden.</li>
-    <li>You should not have more than one account on this server.</li>
-    <li>The main language of the server is English, stick to it.</li>
-    <li>Report any rulebreakers immediately by mentioning @help or by making a ticket.</li>
-    <li>Staff decisions are final — if you think what they did was wrong, you can submit an appeal with DMs.</li>
-    <li>Use common sense — if you think that something is wrong, do not do it.</li>
-  </ul>
-
-  <h3>When joining this server, you automatically accept those rules.</h3>
-
-  <p class="divider">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</p>
 </div>
 
-</p>
-    </section>
-
-  <section id="staff">
-  <h2>Our Staff Team</h2>
-
-  <div class="staff-category">
-    <h3>Founders</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Luckiye</h4><p>Founder</p></div>
-    </div>
-  </div>
-
-  <div class="staff-category">
-    <h3>Owners</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Ary_</h4><p>Owner</p></div>
-      <div class="staff-card"><h4>TANUSHZ</h4><p>Owner</p></div>
-    </div>
-  </div>
-  
-    <div class="staff-category">
-    <h3>Executives</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Gamerboiz57</h4><p>Executive</p></div>
-    </div>
-  </div>
-
-  
-    <div class="staff-category">
-    <h3>Admins</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>PERO</h4><p>Admin</p></div>
-    </div>
-  </div>
-
-
-  <div class="staff-category">
-    <h3>SR.Moderators</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Raiplayz</h4><p>SR.Moderator</p></div>
-    </div>
-  </div>
-
-  <div class="staff-category">
-    <h3>Moderators</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>KRISHNA</h4><p>Moderator</p></div>
-      <div class="staff-card"><h4>DREGGOR</h4><p>Moderator</p></div>
-      <div class="staff-card"><h4>Reigi</h4><p>Moderator</p></div>
-    </div>
-  </div>
-  
-    <div class="staff-category">
-    <h3>T.Moderators</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Synthexo</h4><p>Trial.Moderator</p></div>
-      <div class="staff-card"><h4>LockPeace</h4><p>Trial.Moderator</p></div>
-    </div>
-  </div>
-
-  <div class="staff-category">
-    <h3>Developing Managers</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Protocol</h4><p>Developing Manager</p></div>
-    </div>
-  </div>
-
-  <div class="staff-category">
-    <h3>Developers</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>MGKYT</h4><p>Developer</p></div>
-      <div class="staff-card"><h4>Drfreshdec</h4><p>Developer</p></div>
-      <div class="staff-card"><h4>VOID</h4><p>Developer</p></div>
-      <div class="staff-card"><h4>MacMoment</h4><p>Developer</p></div>
-    </div>
-  </div>
-  
-  <div class="staff-category">
-    <h3>Content.Creators</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>lewis</h4><p>Content.Creator</p></div>
-      <div class="staff-card"><h4>DRKVZN</h4><p>Content.Creator</p></div>
-    </div>
-  </div>
-  
-    <div class="staff-category">
-    <h3>Event.Creators</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Night</h4><p>Event.Creator</p></div>
-      <div class="staff-card"><h4>Kxido</h4><p>Event.Creator</p></div>
-    </div>
-  </div>
-  
-    <div class="staff-category">
-    <h3>Server.Scouts</h3>
-    <div class="staff-grid">
-      <div class="staff-card"><h4>Mosquito</h4><p>Server.Scout</p></div>
-    </div>
-  </div>
-</section>
-
-    <section id="join">
-      <h2>Join Us</h2>
-      <p class="lead">Ready to join? Copy the invite or open Discord to join in seconds.</p>
-      <div class="cta-row">
-        <button id="copyInvite2" class="btn-neon">Copy Invite</button>
-        <a class="btn-outline" href="https://discord.gg/9ggDzhz5XU" target="_blank" rel="noopener">Join Now</a>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    © 2025 LWKY LFG — Built for the community
-  </footer>
-
-  <!-- Toast element -->
-  <script>
-  // Replace '#copyInvite' with the ID of your button
-  const copyButton = document.getElementById('copyInvite');
-
-  copyButton.addEventListener('click', () => {
-    const inviteLink = "https://discord.gg/9ggDzhz5XU"; // Replace with your invite link
-    navigator.clipboard.writeText(inviteLink).then(() => {
-      alert("Discord invite copied!"); // Optional: simple feedback
-    }).catch(err => {
-      alert("Failed to copy invite.");
-      console.error(err);
-    });
-  });
-</script>
-
-
-  <!-- Lightweight JS -->
-  <script>
-    // Navigation logic
-    const navLinks = document.querySelectorAll('.nav-link');
-    const sections = document.querySelectorAll('main section');
-
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = link.dataset.target;
-        navLinks.forEach(n => n.classList.remove('active'));
-        link.classList.add('active');
-        sections.forEach(sec => {
-          if (sec.id === target) sec.classList.add('active'); else sec.classList.remove('active');
-        });
-        // small scroll into view for keyboardless UX
-        document.getElementById(target).scrollIntoView({behavior:'smooth', block:'start'});
-      });
-    });
-
-    // Copy invite + toast
-    const invite = "https://discord.gg/9ggDzhz5XU";
-    const toast = document.getElementById('toast');
-    async function showToast() {
-      toast.classList.add('visible');
-      toast.setAttribute('aria-hidden','false');
-      setTimeout(()=>{ toast.classList.remove('visible'); toast.setAttribute('aria-hidden','true'); }, 1700);
-    }
-    document.getElementById('copyInvite')?.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(invite).catch(()=>{});
-      showToast();
-    });
-    document.getElementById('copyInvite2')?.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(invite).catch(()=>{});
-      showToast();
-    });
-
-    // Ensure a default section visible
-    document.querySelector('main section.active') || document.querySelector('main section')?.classList.add('active');
-  </script>
-  <canvas id="snowCanvas"></canvas>
-
 <script>
-const canvas = document.getElementById('snowCanvas');
-const ctx = canvas.getContext('2d');
-let snowflakes = [];
+    const display = document.getElementById('display');
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-function createSnowflake() {
-  const x = Math.random() * canvas.width;
-  const y = Math.random() * -50;
-  const radius = Math.random() * 2 + 1;
-  const speed = Math.random() * 1 + 0.5;
-  const opacity = Math.random() * 0.7 + 0.3;
-  snowflakes.push({ x, y, radius, speed, opacity });
-}
-
-function drawSnowflakes() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for (let flake of snowflakes) {
-    ctx.beginPath();
-    ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 200, 255, ${flake.opacity})`; // blue glow
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = 'rgba(0, 200, 255, 0.8)';
-    ctx.fill();
-    flake.y += flake.speed;
-    if (flake.y > canvas.height) {
-      flake.y = -flake.radius;
-      flake.x = Math.random() * canvas.width;
+    // Ajoute un chiffre ou un signe à l'écran
+    function addToDisplay(value) {
+        display.value += value;
     }
-  }
-}
 
-function updateSnowfall() {
-  if (snowflakes.length < 120) createSnowflake();
-  drawSnowflakes();
-  requestAnimationFrame(updateSnowfall);
-}
-updateSnowfall();
+    // Efface tout l'écran
+    function clearDisplay() {
+        display.value = '';
+    }
 
-// Style the canvas
-canvas.style.position = 'fixed';
-canvas.style.top = 0;
-canvas.style.left = 0;
-canvas.style.width = '100%';
-canvas.style.height = '100%';
-canvas.style.zIndex = '10';
-canvas.style.pointerEvents = 'none';
+    // Fait le calcul mathématique automatiquement
+    function calculate() {
+        try {
+            // eval() analyse la chaîne de texte et calcule le résultat
+            display.value = eval(display.value);
+        } catch (error) {
+            display.value = "Erreur";
+        }
+    }
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
